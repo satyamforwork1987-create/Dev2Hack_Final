@@ -360,31 +360,11 @@ These were not selected because they require large labeled datasets and training
 
 ---
 
-# 12. Demo & Video
-**Live Demo Link:** [traano.vercel.app](https://traano.vercel.app)  
-**Demo Video Link:** https://drive.google.com/file/d/19DXsVjBnuxVdRZl1NGlRfIEFWRyueu4p/view?usp=sharing
-**GitHub Repository:** [https://github.com/dingdong-vamshi/NOVA AI](https://github.com/dingdong-vamshi/NOVA AI)
-**ppt link :** [https://drive.google.com/file/d/1CZRWD6vax76zb-92-QaM1-rxc84D499E/view?usp=sharing]
-
----
-
 # 13. Hackathon Deliverables Summary
 - Working, end-to-end full-stack web application.
 - Comprehensive AI/Backend intelligence for personal finance tracking.
 - Interactive user dashboard with real-time charts and explainable alerts.
 - Fully documented source code and system architecture.
-
----
-
-# 14. Team Roles & Responsibilities
-
-| Member Name | Role | Responsibilities |
-| :--- | :--- | :--- |
-| **Vamshi** | Ideation & System Design | • Problem identification & solution concept<br>• Designed system workflow (8-stage pipeline)<br>• Planned database structure & anomaly strategy |
-| **Harshita Jain** | Frontend Developer | • Built UI using React & Tailwind<br>• Developed interactive dashboard & charts<br>• Integrated frontend with backend APIs |
-| **Rithwik Kuchana** | Backend Developer | • Developed APIs using Node.js & Express<br>• Implemented parsing & anomaly detection logic<br>• Managed MongoDB database & data security |
-
----
 
 # 15. Future Scope & Scalability
 
