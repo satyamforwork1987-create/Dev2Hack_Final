@@ -1,269 +1,196 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axiosInstance from "../api/axios";
+import { LogoIcon } from "../components/SvgIllustrations";
 
 const Login = () => {
-    const navigate = useNavigate();
-    const [formData, setFormData] = useState({ email: "", password: "" });
-    const [error, setError] = useState("");
-    const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError("");
-        setLoading(true);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
-        try {
-            const response = await axiosInstance.post("/auth/login", formData);
-            localStorage.setItem("token", response.data.token);
-            localStorage.setItem("user", JSON.stringify(response.data.user));
-            navigate("/dashboard");
-        } catch (err) {
-            setError(err.response?.data?.error || "Login failed. Please check your credentials.");
-        } finally {
-            setLoading(false);
-        }
-    };
+    try {
+      const response = await axiosInstance.post("/auth/login", formData);
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+      navigate("/dashboard");
+    } catch (err) {
+      setError(err.response?.data?.error || "Login failed. Please verify your credentials.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const inputStyle = {
-        width: "100%",
-        padding: "13px 16px",
-        borderRadius: "12px",
-        border: "1px solid var(--border-light)",
+  const inputStyle = {
+    width: "100%",
+    padding: "12px 16px",
+    borderRadius: "10px",
+    border: "1px solid var(--border)",
+    background: "#FFFFFF",
+    color: "var(--text-primary)",
+    fontSize: "14px",
+    fontFamily: "var(--font-sans)",
+    outline: "none",
+    transition: "border-color 0.15s ease, box-shadow 0.15s ease",
+  };
+
+  return (
+    <div
+      style={{
+        minHeight: "calc(100vh - 64px)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "40px 24px",
         background: "var(--surface)",
-        color: "var(--text-primary)",
-        fontSize: "14px",
-        fontFamily: "inherit",
-        outline: "none",
-        transition: "border-color 0.3s, box-shadow 0.3s",
-    };
-
-    return (
-        <div
+      }}
+    >
+      <div
+        className="animate-slide-up"
+        style={{ width: "100%", maxWidth: "420px" }}
+      >
+        {/* Header */}
+        <div style={{ textAlign: "center", marginBottom: "28px" }}>
+          <div style={{ display: "inline-flex", marginBottom: "16px" }}>
+            <LogoIcon size={44} />
+          </div>
+          <h1
+            className="font-serif"
             style={{
-                minHeight: "calc(100vh - 64px)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                padding: "40px 24px",
-                position: "relative",
-                overflow: "hidden",
+              fontSize: "26px",
+              fontWeight: 600,
+              color: "var(--text-primary)",
+              letterSpacing: "-0.02em",
+              marginBottom: "6px",
             }}
-        >
-            {/* Floating orbs */}
-            <div
-                style={{
-                    position: "absolute",
-                    top: "-80px",
-                    left: "20%",
-                    width: "400px",
-                    height: "400px",
-                    borderRadius: "50%",
-                    background: "radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, transparent 60%)",
-                    animation: "float 8s ease-in-out infinite",
-                    pointerEvents: "none",
-                }}
-            />
-            <div
-                style={{
-                    position: "absolute",
-                    bottom: "-120px",
-                    right: "15%",
-                    width: "350px",
-                    height: "350px",
-                    borderRadius: "50%",
-                    background: "radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 60%)",
-                    animation: "floatReverse 10s ease-in-out infinite",
-                    pointerEvents: "none",
-                }}
-            />
-
-            {/* Grid pattern */}
-            <div
-                style={{
-                    position: "absolute",
-                    inset: 0,
-                    backgroundImage:
-                        "linear-gradient(rgba(99, 102, 241, 0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(99, 102, 241, 0.02) 1px, transparent 1px)",
-                    backgroundSize: "60px 60px",
-                    pointerEvents: "none",
-                }}
-            />
-
-            <div
-                className="animate-slide-up"
-                style={{ width: "100%", maxWidth: "420px", position: "relative", zIndex: 1 }}
-            >
-                {/* Header */}
-                <div style={{ textAlign: "center", marginBottom: "32px" }}>
-                    <div
-                        style={{
-                            width: "56px",
-                            height: "56px",
-                            borderRadius: "16px",
-                            background: "linear-gradient(135deg, var(--gradient-start), var(--gradient-end))",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            fontSize: "24px",
-                            fontWeight: 800,
-                            color: "white",
-                            margin: "0 auto 20px",
-                            boxShadow: "0 8px 24px rgba(99, 102, 241, 0.3)",
-                        }}
-                    >
-                        T
-                    </div>
-                    <h2
-                        style={{
-                            fontSize: "28px",
-                            fontWeight: 700,
-                            color: "var(--text-primary)",
-                            marginBottom: "8px",
-                        }}
-                    >
-                        Welcome back
-                    </h2>
-                    <p style={{ fontSize: "14px", color: "var(--text-muted)" }}>
-                        Sign in to access your dashboard.{" "}
-                        <Link
-                            to="/register"
-                            style={{
-                                color: "var(--primary-light)",
-                                textDecoration: "none",
-                                fontWeight: 500,
-                            }}
-                        >
-                            Create account →
-                        </Link>
-                    </p>
-                </div>
-
-                {/* Form Card */}
-                <div
-                    className="glass"
-                    style={{
-                        padding: "36px 28px",
-                        borderRadius: "20px",
-                        animation: "glowPulse 4s ease-in-out infinite",
-                    }}
-                >
-                    <form
-                        onSubmit={handleSubmit}
-                        style={{ display: "flex", flexDirection: "column", gap: "22px" }}
-                    >
-                        {error && (
-                            <div
-                                className="animate-fade-in"
-                                style={{
-                                    padding: "12px 16px",
-                                    borderRadius: "12px",
-                                    background: "rgba(239, 68, 68, 0.08)",
-                                    border: "1px solid rgba(239, 68, 68, 0.15)",
-                                    color: "var(--danger-light)",
-                                    fontSize: "13px",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: "8px",
-                                }}
-                            >
-                                <span>⚠️</span> {error}
-                            </div>
-                        )}
-
-                        <div>
-                            <label
-                                style={{
-                                    display: "block",
-                                    fontSize: "13px",
-                                    fontWeight: 600,
-                                    color: "var(--text-secondary)",
-                                    marginBottom: "8px",
-                                }}
-                            >
-                                Email
-                            </label>
-                            <input
-                                type="email"
-                                name="email"
-                                required
-                                value={formData.email}
-                                onChange={handleChange}
-                                placeholder="name@example.com"
-                                style={inputStyle}
-                                onFocus={(e) => {
-                                    e.target.style.borderColor = "var(--primary)";
-                                    e.target.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.1)";
-                                }}
-                                onBlur={(e) => {
-                                    e.target.style.borderColor = "var(--border-light)";
-                                    e.target.style.boxShadow = "none";
-                                }}
-                            />
-                        </div>
-
-                        <div>
-                            <label
-                                style={{
-                                    display: "block",
-                                    fontSize: "13px",
-                                    fontWeight: 600,
-                                    color: "var(--text-secondary)",
-                                    marginBottom: "8px",
-                                }}
-                            >
-                                Password
-                            </label>
-                            <input
-                                type="password"
-                                name="password"
-                                required
-                                value={formData.password}
-                                onChange={handleChange}
-                                placeholder="••••••••"
-                                style={inputStyle}
-                                onFocus={(e) => {
-                                    e.target.style.borderColor = "var(--primary)";
-                                    e.target.style.boxShadow = "0 0 0 3px rgba(99, 102, 241, 0.1)";
-                                }}
-                                onBlur={(e) => {
-                                    e.target.style.borderColor = "var(--border-light)";
-                                    e.target.style.boxShadow = "none";
-                                }}
-                            />
-                        </div>
-
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="glow-btn"
-                            style={{
-                                padding: "14px",
-                                borderRadius: "12px",
-                                border: "none",
-                                background: "linear-gradient(135deg, var(--gradient-start), var(--gradient-end))",
-                                color: "white",
-                                fontSize: "15px",
-                                fontWeight: 600,
-                                cursor: loading ? "not-allowed" : "pointer",
-                                fontFamily: "inherit",
-                                opacity: loading ? 0.6 : 1,
-                                transition: "opacity 0.2s",
-                                boxShadow: "0 4px 20px rgba(99, 102, 241, 0.3)",
-                                marginTop: "4px",
-                            }}
-                        >
-                            {loading ? "Signing in..." : "Sign In →"}
-                        </button>
-                    </form>
-                </div>
-            </div>
+          >
+            Welcome Back
+          </h1>
+          <p style={{ fontSize: "14px", color: "var(--text-secondary)" }}>
+            Access your private financial ledger
+          </p>
         </div>
-    );
+
+        {/* Card Form */}
+        <div className="creamy-card" style={{ padding: "32px 28px" }}>
+          {error && (
+            <div
+              style={{
+                marginBottom: "20px",
+                padding: "12px 14px",
+                borderRadius: "8px",
+                background: "var(--risk-high-bg)",
+                border: "1px solid var(--risk-high-border)",
+                color: "var(--risk-high)",
+                fontSize: "13px",
+                fontWeight: 500,
+              }}
+            >
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit}>
+            <div style={{ marginBottom: "18px" }}>
+              <label
+                style={{
+                  display: "block",
+                  fontSize: "12px",
+                  fontWeight: 600,
+                  color: "var(--text-secondary)",
+                  marginBottom: "6px",
+                }}
+              >
+                Email Address
+              </label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="you@domain.com"
+                required
+                style={inputStyle}
+                onFocus={(e) => (e.target.style.borderColor = "var(--accent)")}
+                onBlur={(e) => (e.target.style.borderColor = "var(--border)")}
+              />
+            </div>
+
+            <div style={{ marginBottom: "24px" }}>
+              <label
+                style={{
+                  display: "block",
+                  fontSize: "12px",
+                  fontWeight: 600,
+                  color: "var(--text-secondary)",
+                  marginBottom: "6px",
+                }}
+              >
+                Password
+              </label>
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="••••••••"
+                required
+                style={inputStyle}
+                onFocus={(e) => (e.target.style.borderColor = "var(--accent)")}
+                onBlur={(e) => (e.target.style.borderColor = "var(--border)")}
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-creamy-primary"
+              style={{
+                width: "100%",
+                padding: "13px 20px",
+                fontSize: "14px",
+                opacity: loading ? 0.7 : 1,
+              }}
+            >
+              {loading ? "Authenticating..." : "Sign In"}
+            </button>
+          </form>
+
+          <div
+            style={{
+              marginTop: "24px",
+              paddingTop: "20px",
+              borderTop: "1px solid var(--border-light)",
+              textAlign: "center",
+              fontSize: "13px",
+              color: "var(--text-muted)",
+            }}
+          >
+            Don't have an account?{" "}
+            <Link
+              to="/register"
+              style={{
+                color: "var(--accent)",
+                fontWeight: 600,
+                textDecoration: "none",
+              }}
+            >
+              Create Account
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default Login;

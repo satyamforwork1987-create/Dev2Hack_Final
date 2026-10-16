@@ -1,19 +1,13 @@
 /**
- * SummaryCards — Dashboard KPI cards
- *
- * Displays: Total Transactions, Total Spending, Avg Value,
- * High Risk Count, Medium Risk Count
+ * SummaryCards — Creamy Editorial KPI cards
  */
 const SummaryCards = ({ summary }) => {
   if (!summary) return null;
 
   const { totalTransactions, summary: typeSummary } = summary;
-
-  // Sum all types (debit + credit + unknown) for total volume
   const totalVolume = typeSummary?.reduce((sum, s) => sum + Math.abs(s.total), 0) || 0;
   const avgValue = totalTransactions > 0 ? totalVolume / totalTransactions : 0;
 
-  // Count risk levels from recent transactions or use summary data
   const highRisk = summary.riskCounts?.High || 0;
   const mediumRisk = summary.riskCounts?.Medium || 0;
 
@@ -26,39 +20,35 @@ const SummaryCards = ({ summary }) => {
 
   const cards = [
     {
-      label: "Total Transactions",
+      label: "Total Audited",
       value: totalTransactions?.toLocaleString("en-IN") || "0",
-      icon: "📊",
-      color: "var(--primary-light)",
-      glow: "rgba(99, 102, 241, 0.15)",
+      subtext: "Parsed transactions",
+      accent: "#1C1917",
     },
     {
-      label: "Total Volume",
+      label: "Gross Volume",
       value: formatINR(totalVolume),
-      icon: "💸",
-      color: "var(--danger-light)",
-      glow: "rgba(248, 113, 113, 0.15)",
+      subtext: "Debits & credits",
+      accent: "#B45309",
     },
     {
-      label: "Avg Transaction",
+      label: "Mean Transaction",
       value: formatINR(avgValue),
-      icon: "📈",
-      color: "var(--accent-light)",
-      glow: "rgba(52, 211, 153, 0.15)",
+      subtext: "Per record average",
+      accent: "#57534E",
     },
     {
-      label: "High Risk",
+      label: "High Anomalies",
       value: highRisk.toString(),
-      icon: "🔴",
-      color: "var(--danger-light)",
-      glow: "rgba(248, 113, 113, 0.15)",
+      subtext: "Immediate review",
+      accent: "#991B1B",
+      highlight: highRisk > 0,
     },
     {
-      label: "Medium Risk",
+      label: "Moderate Watch",
       value: mediumRisk.toString(),
-      icon: "🟡",
-      color: "var(--warning-light)",
-      glow: "rgba(251, 191, 36, 0.15)",
+      subtext: "Mild deviations",
+      accent: "#D97706",
     },
   ];
 
@@ -66,65 +56,59 @@ const SummaryCards = ({ summary }) => {
     <div
       style={{
         display: "grid",
-        gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))",
-        gap: "14px",
+        gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+        gap: "16px",
         marginBottom: "28px",
       }}
-      className="animate-fade-in"
     >
-      {cards.map((card) => (
+      {cards.map((c, idx) => (
         <div
-          key={card.label}
+          key={idx}
+          className="creamy-card"
           style={{
-            background: "var(--surface-card)",
-            border: "1px solid var(--border)",
-            borderRadius: "14px",
-            padding: "20px",
-            transition: "all 0.2s ease",
-            cursor: "default",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = "var(--border-light)";
-            e.currentTarget.style.boxShadow = `0 8px 30px ${card.glow}`;
-            e.currentTarget.style.transform = "translateY(-2px)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.borderColor = "var(--border)";
-            e.currentTarget.style.boxShadow = "none";
-            e.currentTarget.style.transform = "translateY(0)";
+            padding: "20px 22px",
+            background: c.highlight ? "var(--risk-high-bg)" : "var(--surface-card)",
+            borderColor: c.highlight ? "var(--risk-high-border)" : "var(--border)",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
           }}
         >
           <div
             style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              marginBottom: "10px",
-            }}
-          >
-            <p
-              style={{
-                fontSize: "11px",
-                fontWeight: 600,
-                color: "var(--text-muted)",
-                textTransform: "uppercase",
-                letterSpacing: "0.8px",
-              }}
-            >
-              {card.label}
-            </p>
-            <span style={{ fontSize: "16px" }}>{card.icon}</span>
-          </div>
-          <p
-            style={{
-              fontSize: "24px",
+              fontSize: "11px",
               fontWeight: 700,
-              color: card.color,
-              fontVariantNumeric: "tabular-nums",
+              textTransform: "uppercase",
+              letterSpacing: "0.06em",
+              color: c.highlight ? "var(--risk-high)" : "var(--text-muted)",
+              marginBottom: "8px",
             }}
           >
-            {card.value}
-          </p>
+            {c.label}
+          </div>
+
+          <div
+            className="font-serif"
+            style={{
+              fontSize: "26px",
+              fontWeight: 600,
+              color: c.highlight ? "var(--risk-high)" : "var(--text-primary)",
+              letterSpacing: "-0.02em",
+              lineHeight: 1.1,
+              marginBottom: "4px",
+            }}
+          >
+            {c.value}
+          </div>
+
+          <div
+            style={{
+              fontSize: "11px",
+              color: c.highlight ? "var(--risk-high)" : "var(--text-muted)",
+            }}
+          >
+            {c.subtext}
+          </div>
         </div>
       ))}
     </div>

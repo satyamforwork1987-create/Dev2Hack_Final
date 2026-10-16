@@ -1,84 +1,73 @@
 /**
- * Filters — Risk level, date range, category filtering
- *
- * Updates parent state via onChange callback.
- * Filters are applied client-side for responsiveness.
+ * Filters — Creamy Editorial Filter Controls
  */
 const Filters = ({ filters, onChange, categories }) => {
   const riskLevels = ["All", "Normal", "Medium", "High"];
 
   const selectStyle = {
-    padding: "8px 12px",
-    borderRadius: "8px",
+    padding: "8px 14px",
+    borderRadius: "10px",
     border: "1px solid var(--border)",
-    background: "var(--surface-card)",
+    background: "#FFFFFF",
     color: "var(--text-primary)",
     fontSize: "13px",
-    fontFamily: "inherit",
+    fontFamily: "var(--font-sans)",
     outline: "none",
     cursor: "pointer",
-    transition: "border-color 0.2s",
+    transition: "border-color 0.15s ease",
     minWidth: "130px",
   };
 
   const inputStyle = {
     ...selectStyle,
-    colorScheme: "dark",
+    colorScheme: "light",
   };
 
   return (
     <div
+      className="creamy-card"
       style={{
         display: "flex",
         flexWrap: "wrap",
-        gap: "10px",
+        gap: "12px",
         alignItems: "center",
-        marginBottom: "20px",
-        padding: "14px 18px",
-        borderRadius: "12px",
-        background: "var(--surface-card)",
-        border: "1px solid var(--border)",
+        marginBottom: "24px",
+        padding: "16px 20px",
       }}
-      className="animate-fade-in"
     >
-      {/* Label */}
       <span
         style={{
-          fontSize: "12px",
-          fontWeight: 600,
+          fontSize: "11px",
+          fontWeight: 700,
           color: "var(--text-muted)",
           textTransform: "uppercase",
-          letterSpacing: "0.8px",
+          letterSpacing: "0.08em",
           marginRight: "4px",
         }}
       >
         Filters
       </span>
 
-      {/* Risk Level */}
+      {/* Risk Level Filter */}
       <select
         value={filters.riskLevel}
         onChange={(e) => onChange({ ...filters, riskLevel: e.target.value })}
         style={selectStyle}
-        id="filter-risk"
-        onFocus={(e) => (e.target.style.borderColor = "var(--primary)")}
-        onBlur={(e) => (e.target.style.borderColor = "var(--border)")}
+        id="risk-filter"
       >
-        {riskLevels.map((level) => (
-          <option key={level} value={level}>
-            {level === "All" ? "All Risks" : level + " Risk"}
+        {riskLevels.map((lvl) => (
+          <option key={lvl} value={lvl}>
+            {lvl === "All" ? "All Severity" : `${lvl} Severity`}
           </option>
         ))}
       </select>
 
-      {/* Category */}
+      {/* Category Filter */}
       <select
         value={filters.category}
         onChange={(e) => onChange({ ...filters, category: e.target.value })}
         style={selectStyle}
-        id="filter-category"
-        onFocus={(e) => (e.target.style.borderColor = "var(--primary)")}
-        onBlur={(e) => (e.target.style.borderColor = "var(--border)")}
+        id="category-filter"
       >
         <option value="All">All Categories</option>
         {categories.map((cat) => (
@@ -94,10 +83,8 @@ const Filters = ({ filters, onChange, categories }) => {
         value={filters.dateFrom}
         onChange={(e) => onChange({ ...filters, dateFrom: e.target.value })}
         style={inputStyle}
-        id="filter-date-from"
-        placeholder="From"
-        onFocus={(e) => (e.target.style.borderColor = "var(--primary)")}
-        onBlur={(e) => (e.target.style.borderColor = "var(--border)")}
+        placeholder="From Date"
+        id="date-from-filter"
       />
 
       {/* Date To */}
@@ -106,13 +93,11 @@ const Filters = ({ filters, onChange, categories }) => {
         value={filters.dateTo}
         onChange={(e) => onChange({ ...filters, dateTo: e.target.value })}
         style={inputStyle}
-        id="filter-date-to"
-        placeholder="To"
-        onFocus={(e) => (e.target.style.borderColor = "var(--primary)")}
-        onBlur={(e) => (e.target.style.borderColor = "var(--border)")}
+        placeholder="To Date"
+        id="date-to-filter"
       />
 
-      {/* Clear */}
+      {/* Reset button if any filter is active */}
       {(filters.riskLevel !== "All" ||
         filters.category !== "All" ||
         filters.dateFrom ||
@@ -127,28 +112,17 @@ const Filters = ({ filters, onChange, categories }) => {
             })
           }
           style={{
-            padding: "8px 14px",
-            borderRadius: "8px",
-            border: "1px solid var(--border)",
-            background: "transparent",
-            color: "var(--text-muted)",
+            background: "none",
+            border: "none",
+            color: "var(--accent)",
             fontSize: "12px",
-            fontWeight: 500,
+            fontWeight: 600,
             cursor: "pointer",
-            transition: "all 0.2s",
-            fontFamily: "inherit",
+            padding: "6px 10px",
+            textDecoration: "underline",
           }}
-          onMouseEnter={(e) => {
-            e.target.style.color = "var(--danger-light)";
-            e.target.style.borderColor = "var(--danger)";
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.color = "var(--text-muted)";
-            e.target.style.borderColor = "var(--border)";
-          }}
-          id="filter-clear"
         >
-          ✕ Clear
+          Reset Filters
         </button>
       )}
     </div>

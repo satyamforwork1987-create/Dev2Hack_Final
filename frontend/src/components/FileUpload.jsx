@@ -1,11 +1,9 @@
 import { useState, useRef } from "react";
 import axiosInstance from "../api/axios";
+import { UploadDropzoneIllustration } from "./SvgIllustrations";
 
 /**
- * FileUpload — Drag & drop CSV upload with progress
- *
- * Props:
- *   onUploadSuccess(data) — called after successful upload
+ * FileUpload — Creamy tactile drag & drop upload
  */
 const FileUpload = ({ onUploadSuccess }) => {
   const [file, setFile] = useState(null);
@@ -33,12 +31,12 @@ const FileUpload = ({ onUploadSuccess }) => {
 
   const validateAndSet = (f) => {
     const ext = f.name.split(".").pop().toLowerCase();
-    if (ext !== "csv") {
-      setError("Only CSV files are supported.");
+    if (ext !== "csv" && ext !== "pdf") {
+      setError("Please select a valid CSV or PDF bank statement.");
       return;
     }
     if (f.size > 50 * 1024 * 1024) {
-      setError("File must be under 50MB.");
+      setError("File exceeds 50MB limit.");
       return;
     }
     setFile(f);
@@ -60,7 +58,7 @@ const FileUpload = ({ onUploadSuccess }) => {
     try {
       const res = await axiosInstance.post("/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
-        timeout: 300000, // 5 min timeout for large files
+        timeout: 300000,
         onUploadProgress: (e) => {
           setProgress(Math.round((e.loaded * 100) / e.total));
         },
@@ -74,7 +72,7 @@ const FileUpload = ({ onUploadSuccess }) => {
       setError(
         err.response?.data?.error ||
         err.response?.data?.message ||
-        "Upload failed. Please try again."
+        "Upload failed. Please check the backend connection."
       );
     } finally {
       setUploading(false);
@@ -95,186 +93,181 @@ const FileUpload = ({ onUploadSuccess }) => {
         onDrop={handleDrop}
         onClick={() => !uploading && inputRef.current?.click()}
         id="file-drop-zone"
+        className="creamy-card"
         style={{
-          border: `2px dashed ${dragActive ? "var(--primary)" : "var(--border-light)"}`,
-          borderRadius: "16px",
-          padding: "52px 24px",
+          border: `2px dashed ${dragActive ? "var(--accent)" : "var(--border)"}`,
+          background: dragActive ? "var(--accent-soft)" : "var(--surface-card)",
+          padding: "44px 28px",
           textAlign: "center",
-          cursor: uploading ? "default" : "pointer",
-          transition: "all 0.25s ease",
-          background: dragActive ? "rgba(99, 102, 241, 0.06)" : "var(--surface-card)",
-          position: "relative",
+          cursor: uploading ? "not-allowed" : "pointer",
+          transition: "all 0.2s ease",
         }}
       >
-        <div
-          style={{
-            width: "56px",
-            height: "56px",
-            borderRadius: "14px",
-            background: "linear-gradient(135deg, var(--gradient-start), var(--gradient-end))",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            margin: "0 auto 14px",
-            fontSize: "24px",
-          }}
-        >
-          📄
-        </div>
-        <p style={{ fontSize: "15px", fontWeight: 600, marginBottom: "6px" }}>
-          {dragActive ? "Drop your file here" : "Drag & drop your CSV statement"}
-        </p>
-        <p style={{ fontSize: "13px", color: "var(--text-secondary)" }}>
-          or click to browse • CSV only • Max 50MB
-        </p>
         <input
           ref={inputRef}
           type="file"
-          accept=".csv"
-          onChange={(e) => {
-            if (e.target.files[0]) validateAndSet(e.target.files[0]);
-          }}
+          accept=".csv,.pdf"
+          onChange={(e) => e.target.files[0] && validateAndSet(e.target.files[0])}
           style={{ display: "none" }}
-          id="file-input"
+          id="statement-input"
         />
-      </div>
 
-      {/* Selected File */}
-      {file && (
-        <div
-          className="animate-fade-in"
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: "16px" }}>
+          <UploadDropzoneIllustration dragActive={dragActive} />
+        </div>
+
+        <h3
+          className="font-serif"
           style={{
-            marginTop: "12px",
-            padding: "14px 18px",
-            borderRadius: "10px",
-            background: "var(--surface-card)",
-            border: "1px solid var(--border)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
+            fontSize: "19px",
+            fontWeight: 600,
+            color: "var(--text-primary)",
+            marginBottom: "6px",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <span
-              style={{
-                fontSize: "11px",
-                fontWeight: 700,
-                padding: "4px 8px",
-                borderRadius: "6px",
-                background: "rgba(52, 211, 153, 0.12)",
-                color: "var(--accent)",
-              }}
-            >
-              CSV
-            </span>
-            <div>
-              <p style={{ fontSize: "13px", fontWeight: 600 }}>{file.name}</p>
-              <p style={{ fontSize: "11px", color: "var(--text-muted)" }}>
-                {formatSize(file.size)}
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={() => { setFile(null); if (inputRef.current) inputRef.current.value = ""; }}
+          {dragActive ? "Release statement here" : "Choose statement file or drag here"}
+        </h3>
+        <p style={{ fontSize: "13px", color: "var(--text-muted)" }}>
+          Supports CSV or PDF bank exports (max 50MB)
+        </p>
+
+        {/* Selected File Card */}
+        {file && (
+          <div
+            onClick={(e) => e.stopPropagation()}
             style={{
-              background: "none",
-              border: "none",
-              color: "var(--text-muted)",
-              cursor: "pointer",
-              fontSize: "16px",
+              marginTop: "20px",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "12px",
+              padding: "10px 18px",
+              borderRadius: "10px",
+              background: "var(--surface-subtle)",
+              border: "1px solid var(--border)",
+              maxWidth: "100%",
             }}
           >
-            ✕
+            <div style={{ textAlign: "left" }}>
+              <div
+                style={{
+                  fontSize: "13px",
+                  fontWeight: 600,
+                  color: "var(--text-primary)",
+                  maxWidth: "280px",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {file.name}
+              </div>
+              <div style={{ fontSize: "11px", color: "var(--text-muted)" }}>
+                {formatSize(file.size)}
+              </div>
+            </div>
+
+            <button
+              onClick={() => setFile(null)}
+              style={{
+                background: "none",
+                border: "none",
+                color: "var(--text-muted)",
+                cursor: "pointer",
+                padding: "4px",
+                fontSize: "14px",
+                lineHeight: 1,
+              }}
+              title="Remove file"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Progress Bar */}
+      {uploading && (
+        <div style={{ marginTop: "18px" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              fontSize: "12px",
+              fontWeight: 600,
+              color: "var(--text-secondary)",
+              marginBottom: "6px",
+            }}
+          >
+            <span>Analyzing transactions...</span>
+            <span>{progress}%</span>
+          </div>
+          <div
+            style={{
+              height: "6px",
+              borderRadius: "999px",
+              background: "var(--border)",
+              overflow: "hidden",
+            }}
+          >
+            <div
+              style={{
+                height: "100%",
+                width: `${progress}%`,
+                background: "var(--accent)",
+                transition: "width 0.2s ease",
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Error Notice */}
+      {error && (
+        <div
+          style={{
+            marginTop: "16px",
+            padding: "12px 16px",
+            borderRadius: "10px",
+            background: "var(--risk-high-bg)",
+            border: "1px solid var(--risk-high-border)",
+            color: "var(--risk-high)",
+            fontSize: "13px",
+            fontWeight: 500,
+          }}
+        >
+          {error}
+        </div>
+      )}
+
+      {/* Upload Action Button */}
+      {file && !uploading && (
+        <div style={{ marginTop: "20px", display: "flex", justifyContent: "center" }}>
+          <button
+            onClick={handleUpload}
+            className="btn-creamy-primary"
+            style={{ width: "100%", padding: "14px 24px" }}
+          >
+            Process & Detect Anomalies
           </button>
         </div>
       )}
 
-      {/* Upload Button */}
-      <button
-        onClick={handleUpload}
-        disabled={!file || uploading}
-        id="upload-btn"
-        style={{
-          width: "100%",
-          marginTop: "14px",
-          padding: "13px",
-          borderRadius: "10px",
-          border: "none",
-          fontSize: "14px",
-          fontWeight: 600,
-          cursor: file && !uploading ? "pointer" : "not-allowed",
-          background: file && !uploading
-            ? "linear-gradient(135deg, var(--gradient-start), var(--gradient-end))"
-            : "var(--surface-elevated)",
-          color: file && !uploading ? "white" : "var(--text-muted)",
-          transition: "all 0.25s",
-          position: "relative",
-          overflow: "hidden",
-          fontFamily: "inherit",
-        }}
-      >
-        {uploading ? `Uploading... ${progress}%` : "Upload & Analyze"}
-        {uploading && (
-          <div
-            style={{
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-              height: "3px",
-              width: `${progress}%`,
-              background: "var(--accent)",
-              transition: "width 0.3s",
-            }}
-          />
-        )}
-      </button>
-
-      {/* Error */}
-      {error && (
-        <div
-          className="animate-fade-in"
-          style={{
-            marginTop: "10px",
-            padding: "10px 14px",
-            borderRadius: "8px",
-            background: "rgba(239, 68, 68, 0.08)",
-            border: "1px solid rgba(239, 68, 68, 0.15)",
-            color: "var(--danger-light)",
-            fontSize: "12px",
-          }}
-        >
-          ⚠️ {error}
-        </div>
-      )}
-
-      {/* Success Result */}
+      {/* Success Notification */}
       {result && (
         <div
-          className="animate-fade-in"
           style={{
-            marginTop: "10px",
+            marginTop: "16px",
             padding: "14px 18px",
             borderRadius: "10px",
-            background: "rgba(52, 211, 153, 0.06)",
-            border: "1px solid rgba(52, 211, 153, 0.15)",
+            background: "var(--risk-normal-bg)",
+            border: "1px solid var(--risk-normal-border)",
+            color: "var(--risk-normal)",
+            fontSize: "13px",
+            fontWeight: 600,
+            textAlign: "center",
           }}
         >
-          <p style={{ fontSize: "13px", fontWeight: 600, color: "var(--accent-light)", marginBottom: "8px" }}>
-            ✅ {result.totalProcessed} transactions processed
-          </p>
-          {result.riskDistribution && (
-            <div style={{ display: "flex", gap: "12px", fontSize: "12px" }}>
-              <span style={{ color: "var(--risk-normal)" }}>
-                Normal: {result.riskDistribution.Normal}
-              </span>
-              <span style={{ color: "var(--risk-medium)" }}>
-                Medium: {result.riskDistribution.Medium}
-              </span>
-              <span style={{ color: "var(--risk-high)" }}>
-                High: {result.riskDistribution.High}
-              </span>
-            </div>
-          )}
+          ✓ Successfully processed {result.data?.insertedCount || result.data?.total || ""} transactions!
         </div>
       )}
     </div>

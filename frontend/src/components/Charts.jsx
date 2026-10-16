@@ -2,31 +2,44 @@ import { useMemo } from "react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, PieChart, Pie, Cell,
-  BarChart, Bar, Legend,
+  BarChart, Bar,
 } from "recharts";
 
 /**
- * Charts — Three responsive visualizations
- *
- * 1. Transaction Trend (LineChart) — daily volume over time
- * 2. Category Distribution (PieChart) — volume breakdown
- * 3. Risk Distribution (BarChart) — Normal / Medium / High counts
+ * Charts — Creamy Editorial Financial Visualizations
  */
 
-const PIE_COLORS = ["#6366f1", "#8b5cf6", "#06d6a0", "#f59e0b", "#ef4444", "#ec4899", "#14b8a6", "#f97316"];
-const RISK_COLORS = { Normal: "#34d399", Medium: "#fbbf24", High: "#f87171" };
+const CREAMY_PIE_COLORS = [
+  "#B45309", // Warm Caramel / Amber
+  "#15803D", // Heritage Forest Sage
+  "#78350F", // Deep Espresso
+  "#D97706", // Honey
+  "#9A3412", // Terracotta
+  "#57534E", // Warm Stone
+  "#991B1B", // Crimson
+  "#0284C7", // Slate Blue
+];
 
-// Dark tooltip styling
-const tooltipStyle = {
-  backgroundColor: "#1e293b",
-  border: "1px solid #334155",
-  borderRadius: "8px",
+const RISK_COLORS = {
+  Normal: "#15803D",
+  Medium: "#B45309",
+  High: "#991B1B",
+};
+
+// Creamy tooltip styling
+const creamyTooltipStyle = {
+  backgroundColor: "#FFFFFF",
+  border: "1px solid #E8E2D5",
+  borderRadius: "10px",
+  boxShadow: "0 4px 16px rgba(40, 30, 20, 0.08)",
   fontSize: "12px",
-  color: "#f1f5f9",
+  color: "#1F1D1A",
+  fontFamily: "var(--font-sans)",
+  padding: "8px 12px",
 };
 
 const Charts = ({ transactions }) => {
-  // --- 1. Transaction Trend Data (all types) ---
+  // --- 1. Transaction Trend Data ---
   const spendingTrend = useMemo(() => {
     const dailyMap = {};
     for (const tx of transactions) {
@@ -41,7 +54,7 @@ const Charts = ({ transactions }) => {
       }));
   }, [transactions]);
 
-  // --- 2. Category Distribution Data (all types) ---
+  // --- 2. Category Distribution Data ---
   const categoryData = useMemo(() => {
     const catMap = {};
     for (const tx of transactions) {
@@ -58,7 +71,9 @@ const Charts = ({ transactions }) => {
   const riskData = useMemo(() => {
     const counts = { Normal: 0, Medium: 0, High: 0 };
     for (const tx of transactions) {
-      counts[tx.riskLevel] = (counts[tx.riskLevel] || 0) + 1;
+      if (counts[tx.riskLevel] !== undefined) {
+        counts[tx.riskLevel]++;
+      }
     }
     return Object.entries(counts).map(([name, count]) => ({
       name,
@@ -67,125 +82,155 @@ const Charts = ({ transactions }) => {
     }));
   }, [transactions]);
 
-  const cardStyle = {
-    background: "var(--surface-card)",
-    border: "1px solid var(--border)",
-    borderRadius: "14px",
-    padding: "20px",
-  };
-
-  const titleStyle = {
-    fontSize: "13px",
-    fontWeight: 600,
-    color: "var(--text-secondary)",
-    marginBottom: "16px",
-    textTransform: "uppercase",
-    letterSpacing: "0.5px",
-  };
-
-  if (transactions.length === 0) return null;
-
-  // Custom tooltip formatter for currency
-  const formatINR = (v) =>
-    "₹" + v.toLocaleString("en-IN");
+  if (!transactions || transactions.length === 0) return null;
 
   return (
     <div
       style={{
         display: "grid",
-        gridTemplateColumns: "1fr 1fr",
-        gap: "14px",
+        gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+        gap: "20px",
         marginBottom: "28px",
       }}
-      className="animate-fade-in"
     >
-      {/* Spending Trend — full width */}
-      <div style={{ ...cardStyle, gridColumn: "1 / -1" }}>
-        <p style={titleStyle}>📈 Transaction Trend</p>
-        <ResponsiveContainer width="100%" height={260}>
-          <LineChart data={spendingTrend}>
-            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-            <XAxis
-              dataKey="date"
-              tick={{ fontSize: 11, fill: "var(--text-muted)" }}
-              axisLine={{ stroke: "var(--border)" }}
-            />
-            <YAxis
-              tick={{ fontSize: 11, fill: "var(--text-muted)" }}
-              axisLine={{ stroke: "var(--border)" }}
-              tickFormatter={(v) => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}
-            />
-            <Tooltip
-              contentStyle={tooltipStyle}
-              formatter={(v) => [formatINR(v), "Volume"]}
-            />
-            <Line
-              type="monotone"
-              dataKey="amount"
-              stroke="var(--primary)"
-              strokeWidth={2}
-              dot={{ fill: "var(--primary)", r: 3 }}
-              activeDot={{ r: 5, fill: "var(--primary-light)" }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
+      {/* 1. Daily Volume Trend */}
+      <div className="creamy-card" style={{ padding: "24px 20px" }}>
+        <div style={{ marginBottom: "16px" }}>
+          <h4
+            className="font-serif"
+            style={{ fontSize: "16px", fontWeight: 600, color: "var(--text-primary)" }}
+          >
+            Volume Timeline
+          </h4>
+          <p style={{ fontSize: "12px", color: "var(--text-muted)" }}>
+            Daily transaction volume fluctuations
+          </p>
+        </div>
+        <div style={{ width: "100%", height: 220 }}>
+          <ResponsiveContainer>
+            <LineChart data={spendingTrend}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="date" tickLine={false} axisLine={false} />
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                tickFormatter={(val) => `₹${val > 1000 ? `${Math.round(val / 1000)}k` : val}`}
+              />
+              <Tooltip
+                contentStyle={creamyTooltipStyle}
+                formatter={(val) => [`₹${val.toLocaleString("en-IN")}`, "Volume"]}
+              />
+              <Line
+                type="monotone"
+                dataKey="amount"
+                stroke="#1C1917"
+                strokeWidth={2.5}
+                dot={{ r: 3, fill: "#B45309", stroke: "#FFFFFF", strokeWidth: 1.5 }}
+                activeDot={{ r: 5, fill: "#1C1917" }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
       </div>
 
-      {/* Category Distribution */}
-      <div style={cardStyle}>
-        <p style={titleStyle}>🏷️ Category Breakdown</p>
-        <ResponsiveContainer width="100%" height={260}>
-          <PieChart>
-            <Pie
-              data={categoryData}
-              dataKey="value"
-              nameKey="name"
-              cx="50%"
-              cy="50%"
-              innerRadius={55}
-              outerRadius={90}
-              paddingAngle={3}
-              stroke="none"
-            >
-              {categoryData.map((_, i) => (
-                <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
-              ))}
-            </Pie>
-            <Tooltip
-              contentStyle={tooltipStyle}
-              formatter={(v) => [formatINR(v), "Volume"]}
-            />
-            <Legend
-              wrapperStyle={{ fontSize: "11px", color: "var(--text-muted)" }}
-            />
-          </PieChart>
-        </ResponsiveContainer>
+      {/* 2. Category Distribution */}
+      <div className="creamy-card" style={{ padding: "24px 20px" }}>
+        <div style={{ marginBottom: "16px" }}>
+          <h4
+            className="font-serif"
+            style={{ fontSize: "16px", fontWeight: 600, color: "var(--text-primary)" }}
+          >
+            Expense Breakdown
+          </h4>
+          <p style={{ fontSize: "12px", color: "var(--text-muted)" }}>
+            Spending concentration by category
+          </p>
+        </div>
+        <div style={{ width: "100%", height: 220, display: "flex", alignItems: "center" }}>
+          <ResponsiveContainer width="55%" height="100%">
+            <PieChart>
+              <Pie
+                data={categoryData}
+                innerRadius={48}
+                outerRadius={75}
+                paddingAngle={3}
+                dataKey="value"
+              >
+                {categoryData.map((entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={CREAMY_PIE_COLORS[index % CREAMY_PIE_COLORS.length]}
+                  />
+                ))}
+              </Pie>
+              <Tooltip
+                contentStyle={creamyTooltipStyle}
+                formatter={(val) => [`₹${val.toLocaleString("en-IN")}`, "Total"]}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+
+          {/* Clean Legend */}
+          <div style={{ width: "45%", paddingLeft: "10px", fontSize: "11.5px" }}>
+            {categoryData.slice(0, 5).map((item, idx) => (
+              <div
+                key={idx}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "7px",
+                  marginBottom: "8px",
+                  color: "var(--text-secondary)",
+                }}
+              >
+                <span
+                  style={{
+                    width: "8px",
+                    height: "8px",
+                    borderRadius: "2px",
+                    background: CREAMY_PIE_COLORS[idx % CREAMY_PIE_COLORS.length],
+                    flexShrink: 0,
+                  }}
+                />
+                <span
+                  style={{
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {item.name}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
-      {/* Risk Distribution */}
-      <div style={cardStyle}>
-        <p style={titleStyle}>🛡️ Risk Distribution</p>
-        <ResponsiveContainer width="100%" height={260}>
-          <BarChart data={riskData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-            <XAxis
-              dataKey="name"
-              tick={{ fontSize: 11, fill: "var(--text-muted)" }}
-              axisLine={{ stroke: "var(--border)" }}
-            />
-            <YAxis
-              tick={{ fontSize: 11, fill: "var(--text-muted)" }}
-              axisLine={{ stroke: "var(--border)" }}
-              allowDecimals={false}
-            />
-            <Tooltip contentStyle={tooltipStyle} />
-            <Bar dataKey="count" radius={[6, 6, 0, 0]} barSize={40}>
-              {riskData.map((entry, i) => (
-                <Cell key={i} fill={entry.fill} />
-              ))}
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
+      {/* 3. Risk Classification */}
+      <div className="creamy-card" style={{ padding: "24px 20px" }}>
+        <div style={{ marginBottom: "16px" }}>
+          <h4
+            className="font-serif"
+            style={{ fontSize: "16px", fontWeight: 600, color: "var(--text-primary)" }}
+          >
+            Risk Classification
+          </h4>
+          <p style={{ fontSize: "12px", color: "var(--text-muted)" }}>
+            Distribution of normal vs anomalous records
+          </p>
+        </div>
+        <div style={{ width: "100%", height: 220 }}>
+          <ResponsiveContainer>
+            <BarChart data={riskData} barSize={36}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="name" tickLine={false} axisLine={false} />
+              <YAxis tickLine={false} axisLine={false} />
+              <Tooltip contentStyle={creamyTooltipStyle} />
+              <Bar dataKey="count" radius={[6, 6, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </div>
     </div>
   );

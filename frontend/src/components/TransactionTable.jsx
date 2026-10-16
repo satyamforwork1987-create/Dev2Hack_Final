@@ -2,11 +2,7 @@ import { useState } from "react";
 import RiskBadge from "./RiskBadge";
 
 /**
- * TransactionTable — Sortable, paginated transaction list
- *
- * Columns: Date, Description, Category, Amount, Risk Level, Anomaly Score
- * Sorting: Click column headers to toggle sort
- * Pagination: 15 rows per page
+ * TransactionTable — Creamy Editorial Ledger Table
  */
 const ROWS_PER_PAGE = 15;
 
@@ -15,7 +11,6 @@ const TransactionTable = ({ transactions }) => {
   const [sortOrder, setSortOrder] = useState("desc");
   const [page, setPage] = useState(1);
 
-  // --- Sorting ---
   const handleSort = (key) => {
     if (sortKey === key) {
       setSortOrder((o) => (o === "asc" ? "desc" : "asc"));
@@ -49,7 +44,6 @@ const TransactionTable = ({ transactions }) => {
     return 0;
   });
 
-  // --- Pagination ---
   const totalPages = Math.ceil(sorted.length / ROWS_PER_PAGE);
   const paginated = sorted.slice(
     (page - 1) * ROWS_PER_PAGE,
@@ -70,267 +64,201 @@ const TransactionTable = ({ transactions }) => {
       maximumFractionDigits: 0,
     }).format(Math.abs(n));
 
-  const SortIcon = ({ active, order }) => (
-    <span
-      style={{
-        marginLeft: "4px",
-        fontSize: "10px",
-        opacity: active ? 1 : 0.3,
-        color: active ? "var(--primary-light)" : "var(--text-muted)",
-      }}
-    >
-      {active ? (order === "asc" ? "▲" : "▼") : "⇅"}
-    </span>
-  );
-
-  const headerStyle = {
-    fontSize: "11px",
-    fontWeight: 600,
-    color: "var(--text-muted)",
-    textTransform: "uppercase",
-    letterSpacing: "0.8px",
-    cursor: "pointer",
-    userSelect: "none",
-    transition: "color 0.15s",
-    padding: "12px 0",
+  const SortIndicator = ({ column }) => {
+    if (sortKey !== column) return <span style={{ opacity: 0.3, marginLeft: "4px" }}>↕</span>;
+    return <span style={{ marginLeft: "4px", color: "var(--accent)" }}>{sortOrder === "asc" ? "↑" : "↓"}</span>;
   };
 
-  if (transactions.length === 0) {
-    return (
-      <div
-        style={{
-          background: "var(--surface-card)",
-          border: "1px solid var(--border)",
-          borderRadius: "14px",
-          padding: "60px 32px",
-          textAlign: "center",
-        }}
-      >
-        <p style={{ fontSize: "36px", marginBottom: "12px" }}>📋</p>
-        <p
-          style={{ fontSize: "15px", fontWeight: 600, color: "var(--text-primary)", marginBottom: "6px" }}
-        >
-          No transactions yet
-        </p>
-        <p style={{ fontSize: "13px", color: "var(--text-secondary)" }}>
-          Upload a bank statement to see your data here.
-        </p>
-      </div>
-    );
-  }
+  const thStyle = {
+    padding: "12px 16px",
+    fontSize: "11px",
+    fontWeight: 700,
+    textTransform: "uppercase",
+    letterSpacing: "0.06em",
+    color: "var(--text-muted)",
+    textAlign: "left",
+    cursor: "pointer",
+    userSelect: "none",
+    borderBottom: "1px solid var(--border)",
+  };
 
   return (
-    <div
-      style={{
-        background: "var(--surface-card)",
-        border: "1px solid var(--border)",
-        borderRadius: "14px",
-        overflow: "hidden",
-      }}
-      className="animate-fade-in"
-    >
-      {/* Table Header */}
+    <div className="creamy-card" style={{ overflow: "hidden" }}>
       <div
         style={{
-          display: "grid",
-          gridTemplateColumns: "110px 1fr 120px 120px 100px 90px",
-          gap: "8px",
-          padding: "0 20px",
+          padding: "20px 24px",
           borderBottom: "1px solid var(--border)",
-          background: "rgba(99, 102, 241, 0.03)",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: "10px",
+          background: "#FAF7F2",
         }}
       >
-        <div style={headerStyle} onClick={() => handleSort("date")}>
-          Date <SortIcon active={sortKey === "date"} order={sortOrder} />
-        </div>
-        <div style={{ ...headerStyle, cursor: "default" }}>Description</div>
-        <div style={headerStyle} onClick={() => handleSort("category")}>
-          Category
-        </div>
-        <div
-          style={{ ...headerStyle, textAlign: "right" }}
-          onClick={() => handleSort("amount")}
-        >
-          Amount <SortIcon active={sortKey === "amount"} order={sortOrder} />
-        </div>
-        <div style={headerStyle} onClick={() => handleSort("riskLevel")}>
-          Risk <SortIcon active={sortKey === "riskLevel"} order={sortOrder} />
-        </div>
-        <div
-          style={{ ...headerStyle, textAlign: "right" }}
-          onClick={() => handleSort("anomalyScore")}
-        >
-          Score{" "}
-          <SortIcon active={sortKey === "anomalyScore"} order={sortOrder} />
-        </div>
-      </div>
-
-      {/* Rows */}
-      {paginated.map((tx, i) => (
-        <div
-          key={tx._id || i}
-          style={{
-            display: "grid",
-            gridTemplateColumns: "110px 1fr 120px 120px 100px 90px",
-            gap: "8px",
-            padding: "12px 20px",
-            borderBottom:
-              i < paginated.length - 1
-                ? "1px solid rgba(30, 41, 59, 0.6)"
-                : "none",
-            transition: "background 0.12s",
-            alignItems: "center",
-          }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.background = "var(--surface-card-hover)")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.background = "transparent")
-          }
-        >
-          {/* Date */}
-          <span
-            style={{
-              fontSize: "12px",
-              color: "var(--text-secondary)",
-              fontVariantNumeric: "tabular-nums",
-            }}
+        <div>
+          <h3
+            className="font-serif"
+            style={{ fontSize: "17px", fontWeight: 600, color: "var(--text-primary)" }}
           >
-            {formatDate(tx.date)}
-          </span>
-
-          {/* Description */}
-          <span
-            style={{
-              fontSize: "13px",
-              fontWeight: 500,
-              color: "var(--text-primary)",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {tx.description || "—"}
-          </span>
-
-          {/* Category */}
-          <span
-            style={{
-              fontSize: "12px",
-              color: "var(--text-muted)",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {tx.category || "—"}
-          </span>
-
-          {/* Amount */}
-          <span
-            style={{
-              fontSize: "13px",
-              fontWeight: 600,
-              textAlign: "right",
-              fontVariantNumeric: "tabular-nums",
-              color:
-                tx.type === "credit"
-                  ? "var(--accent-light)"
-                  : "var(--text-primary)",
-            }}
-          >
-            {tx.type === "credit" ? "+" : "−"}
-            {formatCurrency(tx.amount)}
-          </span>
-
-          {/* Risk Badge */}
-          <RiskBadge level={tx.riskLevel} />
-
-          {/* Score */}
-          <span
-            style={{
-              fontSize: "12px",
-              fontWeight: 600,
-              textAlign: "right",
-              fontVariantNumeric: "tabular-nums",
-              color:
-                tx.anomalyScore >= 60
-                  ? "var(--risk-high)"
-                  : tx.anomalyScore >= 30
-                  ? "var(--risk-medium)"
-                  : "var(--text-muted)",
-            }}
-          >
-            {tx.anomalyScore}
-          </span>
+            Transaction Journal
+          </h3>
+          <p style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "2px" }}>
+            Showing {paginated.length} of {sorted.length} recorded line items
+          </p>
         </div>
-      ))}
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            padding: "12px 20px",
-            borderTop: "1px solid var(--border)",
-            fontSize: "12px",
-            color: "var(--text-muted)",
-          }}
-        >
-          <span>
-            Showing {(page - 1) * ROWS_PER_PAGE + 1}–
-            {Math.min(page * ROWS_PER_PAGE, sorted.length)} of {sorted.length}
-          </span>
-          <div style={{ display: "flex", gap: "6px" }}>
+        {totalPages > 1 && (
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              onClick={() => setPage((p) => Math.max(p - 1, 1))}
               disabled={page === 1}
               style={{
                 padding: "6px 12px",
-                borderRadius: "6px",
+                borderRadius: "8px",
                 border: "1px solid var(--border)",
-                background: "transparent",
-                color: page === 1 ? "var(--text-muted)" : "var(--text-secondary)",
-                fontSize: "12px",
+                background: page === 1 ? "transparent" : "#FFFFFF",
+                color: page === 1 ? "var(--text-muted)" : "var(--text-primary)",
                 cursor: page === 1 ? "not-allowed" : "pointer",
-                fontFamily: "inherit",
+                fontSize: "12px",
+                fontWeight: 600,
               }}
             >
               ← Prev
             </button>
-            <span
-              style={{
-                padding: "6px 12px",
-                fontSize: "12px",
-                color: "var(--text-secondary)",
-              }}
-            >
+            <span style={{ fontSize: "12px", color: "var(--text-muted)", fontWeight: 500 }}>
               {page} / {totalPages}
             </span>
             <button
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
               disabled={page === totalPages}
               style={{
                 padding: "6px 12px",
-                borderRadius: "6px",
+                borderRadius: "8px",
                 border: "1px solid var(--border)",
-                background: "transparent",
-                color:
-                  page === totalPages
-                    ? "var(--text-muted)"
-                    : "var(--text-secondary)",
-                fontSize: "12px",
+                background: page === totalPages ? "transparent" : "#FFFFFF",
+                color: page === totalPages ? "var(--text-muted)" : "var(--text-primary)",
                 cursor: page === totalPages ? "not-allowed" : "pointer",
-                fontFamily: "inherit",
+                fontSize: "12px",
+                fontWeight: 600,
               }}
             >
               Next →
             </button>
           </div>
-        </div>
-      )}
+        )}
+      </div>
+
+      {/* Table Container */}
+      <div style={{ overflowX: "auto" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
+          <thead>
+            <tr style={{ background: "#FAF7F2" }}>
+              <th onClick={() => handleSort("date")} style={thStyle}>
+                Date <SortIndicator column="date" />
+              </th>
+              <th onClick={() => handleSort("description")} style={thStyle}>
+                Merchant / Description <SortIndicator column="description" />
+              </th>
+              <th onClick={() => handleSort("category")} style={thStyle}>
+                Category <SortIndicator column="category" />
+              </th>
+              <th onClick={() => handleSort("amount")} style={{ ...thStyle, textAlign: "right" }}>
+                Amount <SortIndicator column="amount" />
+              </th>
+              <th onClick={() => handleSort("riskLevel")} style={thStyle}>
+                Risk Status <SortIndicator column="riskLevel" />
+              </th>
+              <th style={thStyle}>Analysis Reason</th>
+            </tr>
+          </thead>
+          <tbody>
+            {paginated.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={6}
+                  style={{
+                    padding: "48px 24px",
+                    textAlign: "center",
+                    color: "var(--text-muted)",
+                    fontSize: "14px",
+                  }}
+                >
+                  No transactions match the selected filters.
+                </td>
+              </tr>
+            ) : (
+              paginated.map((tx, idx) => {
+                const isHigh = tx.riskLevel === "High";
+                const isMedium = tx.riskLevel === "Medium";
+                return (
+                  <tr
+                    key={tx._id || idx}
+                    style={{
+                      borderBottom: "1px solid var(--border-light)",
+                      background: isHigh ? "#FFF9F9" : isMedium ? "#FFFCF5" : "#FFFFFF",
+                      transition: "background-color 0.1s ease",
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isHigh && !isMedium) e.currentTarget.style.backgroundColor = "#FCFAF6";
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isHigh && !isMedium) e.currentTarget.style.backgroundColor = "#FFFFFF";
+                    }}
+                  >
+                    <td style={{ padding: "14px 16px", color: "var(--text-secondary)", whiteSpace: "nowrap", fontWeight: 500 }}>
+                      {formatDate(tx.date)}
+                    </td>
+                    <td style={{ padding: "14px 16px", fontWeight: 600, color: "var(--text-primary)" }}>
+                      {tx.merchantCleaned || tx.description || "Unspecified"}
+                    </td>
+                    <td style={{ padding: "14px 16px" }}>
+                      <span
+                        style={{
+                          display: "inline-block",
+                          padding: "3px 8px",
+                          borderRadius: "6px",
+                          background: "var(--surface-subtle)",
+                          color: "var(--text-secondary)",
+                          fontSize: "11px",
+                          fontWeight: 600,
+                        }}
+                      >
+                        {tx.category || "Others"}
+                      </span>
+                    </td>
+                    <td
+                      style={{
+                        padding: "14px 16px",
+                        textAlign: "right",
+                        fontWeight: 700,
+                        whiteSpace: "nowrap",
+                        color: tx.amount < 0 ? "var(--text-primary)" : "var(--sage)",
+                      }}
+                    >
+                      {formatCurrency(tx.amount)}
+                    </td>
+                    <td style={{ padding: "14px 16px" }}>
+                      <RiskBadge level={tx.riskLevel} score={tx.anomalyScore} />
+                    </td>
+                    <td
+                      style={{
+                        padding: "14px 16px",
+                        fontSize: "12px",
+                        color: isHigh ? "var(--risk-high)" : "var(--text-muted)",
+                        maxWidth: "260px",
+                        lineHeight: 1.4,
+                      }}
+                    >
+                      {tx.anomalyReason || (tx.riskLevel === "Normal" ? "Within regular spending tolerance" : "Unusual pattern")}
+                    </td>
+                  </tr>
+                );
+              })
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
